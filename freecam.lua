@@ -1,21 +1,24 @@
 local UserInputService = game:GetService("UserInputService")
 local player = game.Players.LocalPlayer
+local replicatedStorage = game:GetService("ReplicatedStorage")
 
--- Warte, bis der Character geladen ist
-player.CharacterAdded:Wait()
-local character = player.Character
-local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+-- Event erstellen, um das Löschen mit dem Server zu synchronisieren
+local deleteFloorEvent = replicatedStorage:FindFirstChild("DeleteFloorEvent")
 
--- Funktion zum Teleportieren
-local function teleportDown()
-    if humanoidRootPart then
-        humanoidRootPart.CFrame = humanoidRootPart.CFrame * CFrame.new(0, -10, 0)
-    end
+if not deleteFloorEvent then
+    deleteFloorEvent = Instance.new("RemoteEvent")
+    deleteFloorEvent.Name = "DeleteFloorEvent"
+    deleteFloorEvent.Parent = replicatedStorage
+end
+
+-- Funktion zum Senden des Events an den Server
+local function deleteFloor()
+    deleteFloorEvent:FireServer()
 end
 
 -- Event für das Drücken der "U"-Taste
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed and input.KeyCode == Enum.KeyCode.U then
-        teleportDown()
+        deleteFloor()
     end
 end)
