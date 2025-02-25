@@ -1,24 +1,22 @@
 local UserInputService = game:GetService("UserInputService")
 local player = game.Players.LocalPlayer
-local replicatedStorage = game:GetService("ReplicatedStorage")
+local workspace = game:GetService("Workspace")
 
--- Event erstellen, um das Löschen mit dem Server zu synchronisieren
-local deleteFloorEvent = replicatedStorage:FindFirstChild("DeleteFloorEvent")
-
-if not deleteFloorEvent then
-    deleteFloorEvent = Instance.new("RemoteEvent")
-    deleteFloorEvent.Name = "DeleteFloorEvent"
-    deleteFloorEvent.Parent = replicatedStorage
+-- Funktion zum Ausblenden aller Objekte
+local function hideEverything()
+    for _, obj in pairs(workspace:GetChildren()) do
+        if not obj:IsA("Terrain") then -- Terrain bleibt sichtbar
+            obj.LocalTransparencyModifier = 1 -- Macht es für dich unsichtbar
+            if obj:IsA("BasePart") then
+                obj.CanCollide = false -- Du kannst nicht mehr darauf laufen
+            end
+        end
+    end
 end
 
--- Funktion zum Senden des Events an den Server
-local function deleteFloor()
-    deleteFloorEvent:FireServer()
-end
-
--- Event für das Drücken der "U"-Taste
+-- Wenn "U" gedrückt wird, verschwinden die Objekte nur für dich
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if not gameProcessed and input.KeyCode == Enum.KeyCode.U then
-        deleteFloor()
+        hideEverything()
     end
 end)
